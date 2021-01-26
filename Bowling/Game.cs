@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-
+using System.Threading;
 
 namespace Bowling
 {
@@ -12,62 +12,142 @@ namespace Bowling
         private Player[] playerList;
         private int playerTurn;
         private int totalFrames = 10;
-        private int ballDeliveryCount = 1;
+        private static int ballDeliveryCount = 1;
+        private int pinsLeft = 10;
+        private int maxPlayers = 10;
         private ScoreBoard scoreBoard;
-        
-        //one frame 2 ball deliveries
-        //calculate current score for frame, if bonus is earned enable bonus
-        //play next frame, if bonus is earned enable bonus
-        //apply bonus points to previous frame
-
-        //frame 1 & 2 follow these rules
-        //if you get a strike, the points from your next 2 balls get added as a bonus for that fram
-        //if you get a spare, the poins from your next 1 ball get added as a bonus for that frame
-
-        //final frame
-        //you get bonus balls if you strike/spare up to a max of 3 balls
-        //if you strike, you get 2 more balls
-        //if you spare, you get a 3rd ball
-
-        public Game()
-        {
-
-        }
 
         public void Run()
         {
             CreatePlayers();
             CreateScoreBoard();
-            scoreBoard.DisplayScoreboard();
             Play();
 
         }
 
         private void Play()
         {
-            for(var i= 1; i <= totalFrames; i++)
+
+            for(var frameNumber= 1; frameNumber <= totalFrames; frameNumber++)
             {
-                if(ballDeliveryCount < 19)
+                //frames 1 - 9
+                if (ballDeliveryCount < 19) 
                 {
+                   
                     foreach (var player in playerList)
                     {
-                        Console.WriteLine($"{player.playerName}, please enter your score for the { GetBallNumber(ballDeliveryCount) } bowl of frame { i }");
-                        int.TryParse(Console.ReadLine(), out int bowledPinCount);
-                        scoreBoard.UpdatePlayerScore(player, bowledPinCount, ballDeliveryCount - 1);
-                        ballDeliveryCount += 1;
-                        Console.WriteLine($"{player.playerName}, please enter your score for the { GetBallNumber(ballDeliveryCount) } bowl of frame { i }");
-                        int.TryParse(Console.ReadLine(), out bowledPinCount);
-                        scoreBoard.UpdatePlayerScore(player, bowledPinCount, ballDeliveryCount - 1);
-                        ballDeliveryCount -= 1;
+                        scoreBoard.DisplayScoreboard();
+                        Bowl(frameNumber, player);
+
+                        if (pinsLeft > 0)
+                        {
+                            Bowl(frameNumber, player);
+
+                            //reset for next player
+                            ballDeliveryCount -= 2;
+                            pinsLeft = 10;
+                        }
+                        else{
+                            //reset for next player
+                            ballDeliveryCount -= 1;
+                            pinsLeft = 10;
+                        }
+                        
                     }
+                    //Set for start of next frame
                     ballDeliveryCount += 2;
+                    
                 }
-                else
-                {
-                    Console.WriteLine("final frame");
+                else //frame 10
+                {                   
+                    foreach (var player in playerList)
+                    {
+                        //1st ball
+                        scoreBoard.DisplayScoreboard();
+                        Bowl(frameNumber, player);
+
+                        //2nd ball, player can try for spare
+                        if (pinsLeft > 0)
+                        {
+                            Bowl(frameNumber, player);
+
+                            if (pinsLeft == 0) //3rd ball, earned for getting spare
+                            {
+                                //Reset pins
+                                pinsLeft = 10;
+
+                                Bowl(frameNumber, player);
+
+                                //reset for next player
+                                ballDeliveryCount -= 3;
+                                pinsLeft = 10;
+                            }
+                            else //no extra ball earned, end turn
+                            {
+                                //reset for next player
+                                ballDeliveryCount -= 2;
+                                pinsLeft = 10;
+                            }
+                        }
+                        else //2 balls earned for getting a strike, 2nd ball
+                        {
+                            //reset pins
+                            pinsLeft = 10;
+
+                            Bowl(frameNumber, player);
+
+                            if (pinsLeft == 0) //Strike, 3rd ball
+                            {
+                                //Reset pins
+                                pinsLeft = 10;
+
+                                Bowl(frameNumber, player);
+
+                                //Reset for next player
+                                ballDeliveryCount -= 3;
+                                pinsLeft = 10;
+                            }
+                            else //3rd ball, player can try for spare
+                            {
+                                Bowl(frameNumber, player);
+
+                                //Reset for next player
+                                ballDeliveryCount -= 3;
+                                pinsLeft = 10;
+                            }
+                        }
+                        
+                    }
                 }
             }
            
+        }
+
+        private void Bowl(int frameNumber, Player player)
+        {
+            var bowledPinCount = GetPlayerPinsBowled(frameNumber, player);
+            scoreBoard.UpdatePlayerScore(player, bowledPinCount, ballDeliveryCount - 1);
+            ballDeliveryCount += 1;
+            pinsLeft -= bowledPinCount;
+        }
+
+        private int GetPlayerPinsBowled(int frameNumber, Player player)
+        {
+            int bowledPinCount;
+            do
+            {
+                Console.WriteLine($"{player.playerName}, please enter your score for the { GetBallNumber(ballDeliveryCount) } bowl of frame { frameNumber }(Pins left: { pinsLeft })");
+                int.TryParse(Console.ReadLine(), out bowledPinCount);
+                if (bowledPinCount < 0 || bowledPinCount > pinsLeft)
+                {
+                    //Console.Clear();
+                    Console.WriteLine("You entered an invalid number.");
+                    //Console.WriteLine($"{player.playerName}, please enter your score for the { GetBallNumber(ballDeliveryCount) } bowl of frame { frameNumber }(Pins left: { pinsLeft })");
+
+                }
+            } while (bowledPinCount < 0 || bowledPinCount > pinsLeft);
+
+            return bowledPinCount;
         }
 
         private object GetBallNumber(int ballDeliveryCount)
@@ -94,38 +174,37 @@ namespace Bowling
         public void CreatePlayers()
         {
             Console.Write("Please enter how many players will be playing in this game (between 1 and 10): ");
-            int numPlayers = 0;
-            while (numPlayers < 1 || numPlayers > 10)
+            do
             {
                 int.TryParse(Console.ReadLine(), out numPlayers);
 
-                if (numPlayers < 1 || numPlayers > 10)
+                if (numPlayers < 1 || numPlayers > maxPlayers)
                 {
                     Console.Clear();
                     Console.WriteLine("You entered an invalid number.");
-                    Console.Write("Please enter how many players will be playing in this game (between 1 and 10): ");
+                    Console.Write($"Please enter how many players will be playing in this game (between 1 and { maxPlayers}): ");
                 }
-            }
+            } while (numPlayers < 1 || numPlayers > maxPlayers) ;
 
-            Console.WriteLine($"You chose { numPlayers } players!");
+                Console.WriteLine($"Creating { numPlayers } players...");
 
             var playerNames = new string[numPlayers];
 
             for (int i = 1; i <= numPlayers; i++)
             {
-
                 Console.Write($"Please enter the name of player { i }: ");
                 string playerName = Console.ReadLine();
                 playerNames[i - 1] = playerName;
-                Console.Clear();
             }
 
             playerList = playerNames.Select(x => new Player(x)).ToArray();
 
             foreach (var player in playerList)
             {
-                Console.WriteLine($"Player { player.GetPlayerID()}: { player.playerName } has been created");
+                Console.WriteLine($"Player { player.GetPlayerID() + 1}: { player.playerName } has been created");
             }
+            Thread.Sleep(2000);
+            Console.Clear();
         }
     }     
 }
