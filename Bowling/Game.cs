@@ -19,7 +19,7 @@ namespace Bowling
         public void Run()
         {
             CreatePlayers();
-            CreateScoreBoard(playerList);
+            CreateScoreBoard();
             Play();
 
         }
@@ -35,7 +35,7 @@ namespace Bowling
                     foreach (var player in playerList)
                     {
                         SetupFrame(frameNumber);
-                        scoreBoard.DisplayScoreboard();
+                        scoreBoard.DisplayScoreboard(playerList);
                         Bowl(frameNumber, player);
 
                         if (_pinsLeft > 0)
@@ -50,7 +50,7 @@ namespace Bowling
                     {
                         SetupFrame(frameNumber);
                         //1st ball
-                        scoreBoard.DisplayScoreboard();
+                        scoreBoard.DisplayScoreboard(playerList);
                         Bowl(frameNumber, player);
 
                         //2nd ball, player can try for spare
@@ -100,7 +100,8 @@ namespace Bowling
         private void Bowl(int frameNumber, Player player)
         {
             var bowledPinCount = GetPlayerPinsBowled(frameNumber, player);
-            scoreBoard.UpdatePlayerScore(player, bowledPinCount, _ballDeliveryCount, GetBallNumber(_ballDeliveryCount), frameNumber);
+            player.score.UpdateScore(bowledPinCount, _ballDeliveryCount, GetBallNumber(_ballDeliveryCount), frameNumber);
+            scoreBoard.DisplayScoreboard(playerList);
             _ballDeliveryCount += 1;
             _pinsLeft -= bowledPinCount;
         }
@@ -110,7 +111,7 @@ namespace Bowling
             int bowledPinCount;
             do
             {
-                Console.WriteLine($"{player.playerName}, please enter your score for the { GetOrdinalBallNumber(_ballDeliveryCount) } bowl of frame { frameNumber }(Pins left: { _pinsLeft })");
+                Console.WriteLine($"{player.name}, please enter your score for the { GetOrdinalBallNumber(_ballDeliveryCount) } bowl of frame { frameNumber }(Pins left: { _pinsLeft })");
                 int.TryParse(Console.ReadLine(), out bowledPinCount);
                 if (bowledPinCount < 0 || bowledPinCount > _pinsLeft)
                 {
@@ -153,9 +154,9 @@ namespace Bowling
             }
         }
 
-        private void CreateScoreBoard(Player[] playerList)
+        private void CreateScoreBoard()
         {
-            scoreBoard = new ScoreBoard(playerList);
+            scoreBoard = new ScoreBoard();
         }
 
         public void CreatePlayers()
@@ -188,7 +189,7 @@ namespace Bowling
 
             foreach (var player in playerList)
             {
-                Console.WriteLine($"Player { player.GetPlayerID() + 1}: { player.playerName } has been created");
+                Console.WriteLine($"Player { player.GetPlayerID() + 1}: { player.name } has been created");
             }
             Thread.Sleep(2000);
             Console.Clear();
