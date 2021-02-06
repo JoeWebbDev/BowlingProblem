@@ -27,11 +27,11 @@ namespace Bowling
         private void Play()
         {
 
-            for(var frameNumber= 1; frameNumber <= _totalFrames; frameNumber++)
+            for (var frameNumber = 1; frameNumber <= _totalFrames; frameNumber++)
             {
                 //frames 1 - 9
-                if (_ballDeliveryCount < 18) 
-                {           
+                if (_ballDeliveryCount < 18)
+                {
                     foreach (var player in playerList)
                     {
                         SetupFrame(frameNumber);
@@ -42,10 +42,10 @@ namespace Bowling
                         {
                             Bowl(frameNumber, player);
                         }
-                    }                    
+                    }
                 }
                 else //frame 10
-                {                   
+                {
                     foreach (var player in playerList)
                     {
                         SetupFrame(frameNumber);
@@ -78,13 +78,20 @@ namespace Bowling
                                 Bowl(frameNumber, player);
                             }
                         }
-                        
+
                     }
                 }
             }
-           
-        }
 
+            do
+            {
+                Console.Clear();
+                scoreBoard.DisplayScoreboard(playerList);
+                Console.WriteLine();
+                Console.WriteLine("Enter Q to quit the application");
+            } while (Console.ReadKey().Key != ConsoleKey.Q);
+
+        }
         private void SetupFrame(int frameNumber)
         {
             //Resets ball delivery count according to frame number.

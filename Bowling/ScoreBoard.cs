@@ -16,7 +16,6 @@ namespace Bowling
         {
             //(186: ║), (187: ╗) (188: ╝), (200: ╚), (201: ╔), (205: ═)
             Console.Clear();
-
             Console.Write('\n');
 
             //Construct header
@@ -34,35 +33,34 @@ namespace Bowling
             foreach(var player in playerList)
             {              
                 Console.Write($"|{ new string(' ', padding) + player.name.PadLeft(nameColumnWidth - 2) + new string(' ', padding) }| ");
-                for (var j = 0; j < 21; j++)
+                for (var i = 0; i < 21; i++)
                 {       
                     //draw player score
-                    if(player.score.scoreDisplay[j] == null)
+                    if(player.score.scoreDisplay[i] == null)
                     {
                         Console.Write($" ");
                     }
                     else
                     {
-                        Console.Write($"{player.score.scoreDisplay[j]}");
+                        Console.Write($"{player.score.scoreDisplay[i]}");
                     }
-                    Console.Write(new string(' ', padding) + "|" + new string(' ', padding));
-
-                    //Display total
-                                 
+                    Console.Write(new string(' ', padding) + "|" + new string(' ', padding));               
                 }
+                //Display total
+                Console.Write(player.score.finalScore);
                 Console.Write('\n');
                 Console.Write($"|{ new string(' ', nameColumnWidth) }| ");
-                for (var k = 0; k < 10; k++)
+                for (var i = 0; i < 10; i++)
                 {
                     //draw running totals
-                    if (k < 9)
+                    if (i < 9)
                     {                      
-                        Console.Write($"{player.score.runningTotals[k].ToString().PadLeft(5)}");
+                        Console.Write($"{player.score.runningTotals[i].ToString().PadLeft(5)}");
                         Console.Write(new string(' ', padding) + "|" + new string(' ', padding));
                     }
                     else
                     {
-                        Console.Write($"{player.score.runningTotals[k].ToString().PadLeft(9)}");
+                        Console.Write($"{player.score.runningTotals[i].ToString().PadLeft(9)}");
                         Console.Write(new string(' ', padding) + "|" + new string(' ', padding));
                     }                  
                 }

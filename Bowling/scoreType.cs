@@ -8,6 +8,7 @@ namespace Bowling
     {
         OpenFrame,
         Strike,
-        Spare
+        Spare,
+        FinalFrame
     }
 }
