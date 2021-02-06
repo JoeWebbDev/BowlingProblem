@@ -41,6 +41,11 @@ namespace Bowling
                 bonus[3] += 1;
             }
         }
+
+        internal void IncrementFinalFrameCount()
+        {
+            bonusList.First(x => x[2] == (int)ScoreType.FinalFrame)[3] += 1;
+        }
         internal void ApplyCompleteBonuses(int[] runningTotals)
         {
             foreach(var bonus in bonusList)
@@ -75,19 +80,19 @@ namespace Bowling
 
         private bool IsBonusComplete(int[] bonus)
         {
-                if(bonus[2] == (int)ScoreType.Strike && bonus[3] == 3)
+                if(bonus[2] == (int)ScoreType.Strike && bonus[3] >= 3)
                 {
                     return true;
                 }
-                else if(bonus[2] == (int)ScoreType.Spare && bonus[3] == 2)
+                else if(bonus[2] == (int)ScoreType.Spare && bonus[3] >= 2)
                 {
                     return true;
                 }
-                else if(bonus[2] == (int)ScoreType.OpenFrame && bonus[3] == 2)
+                else if(bonus[2] == (int)ScoreType.OpenFrame && bonus[3] >= 2)
                 {
                     return true;
                 }
-                else if (bonus[2] == (int)ScoreType.FinalFrame && bonus[3] == 3)
+                else if (bonus[2] == (int)ScoreType.FinalFrame && bonus[3] >= 3)
                 {
                     return true;
                 }

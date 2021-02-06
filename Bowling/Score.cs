@@ -45,7 +45,6 @@ namespace Bowling
                 else
                 {
                     scoreDisplay[totalBallsBowled - 1] = scores[totalBallsBowled - 1].ToString();
-                    //this will always trigger if no strike
                     if (ballNumber == 1)
                     {
                         bonusScore.AddBonus(frameNumber, numberOfPinsBowled, ScoreType.OpenFrame);
@@ -74,6 +73,12 @@ namespace Bowling
                     if (ballNumber == 1)
                     {
                         bonusScore.AddBonus(frameNumber, numberOfPinsBowled, ScoreType.FinalFrame);
+                    }
+                    if (ballNumber == 2)
+                    {
+                        bonusScore.IncrementFinalFrameCount();
+                        UpdateRunningTotal(frameNumber, totalBallsBowled, ballNumber);
+                        finalScore = runningTotals[9].ToString();
                     }
                 }
                 UpdateRunningTotal(frameNumber, totalBallsBowled, ballNumber);
