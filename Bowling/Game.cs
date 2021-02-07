@@ -6,14 +6,13 @@ using System.Threading;
 
 namespace Bowling
 {
-    class Game
+    public class Game
     {
-        private int _numPlayers = 0;
         private Player[] playerList;
-        private int _totalFrames = 10;
-        private static int _ballDeliveryCount = 1;
+        private const int TotalFrames = 10;
+        private const int MaxPlayers = 10;
+        private int _ballDeliveryCount = 1;
         private int _pinsLeft = 10;
-        private int _maxPlayers = 10;
         private ScoreBoard scoreBoard;
 
         public void Run()
@@ -21,13 +20,12 @@ namespace Bowling
             CreatePlayers();
             CreateScoreBoard();
             Play();
-
         }
 
         private void Play()
         {
 
-            for (var frameNumber = 1; frameNumber <= _totalFrames; frameNumber++)
+            for (var frameNumber = 1; frameNumber <= TotalFrames; frameNumber++)
             {
                 //frames 1 - 9
                 if (_ballDeliveryCount < 18)
@@ -168,38 +166,61 @@ namespace Bowling
 
         public void CreatePlayers()
         {
-            Console.Write("Please enter how many players will be playing in this game (between 1 and 10): ");
-            do
-            {
-                int.TryParse(Console.ReadLine(), out _numPlayers);
 
-                if (_numPlayers < 1 || _numPlayers > _maxPlayers)
-                {
-                    Console.Clear();
-                    Console.WriteLine("You entered an invalid number.");
-                    Console.Write($"Please enter how many players will be playing in this game (between 1 and { _maxPlayers}): ");
-                }
-            } while (_numPlayers < 1 || _numPlayers > _maxPlayers);
+            string[] playerNames = GetPlayerNames(GetPlayerCount);
+            playerList = ConstructPlayers(playerNames);
 
-                Console.WriteLine($"Creating { _numPlayers } players...");
+            Thread.Sleep(2000);
+            Console.Clear();
+        }
 
-            var playerNames = new string[_numPlayers];
-
-            for (int i = 1; i <= _numPlayers; i++)
-            {
-                Console.Write($"Please enter the name of player { i }: ");
-                string playerName = Console.ReadLine();
-                playerNames[i - 1] = playerName;
-            }
-
-            playerList = playerNames.Select(x => new Player(x)).ToArray();
+        private Player[] ConstructPlayers(string[] playerNames)
+        {
+            var playerList = playerNames.Select(x => new Player(x)).ToArray();
 
             foreach (var player in playerList)
             {
                 Console.WriteLine($"Player { player.GetPlayerID() + 1}: { player.name } has been created");
             }
-            Thread.Sleep(2000);
-            Console.Clear();
+
+            return playerList;
+        }
+
+        private string[] GetPlayerNames(Func<int> GetPlayerCount)
+        {
+            int playerCount = GetPlayerCount();
+            Console.WriteLine($"Creating { playerCount } players...");
+
+            var playerNames = new string[playerCount];
+
+            for (int i = 0; i < playerCount; i++)
+            {
+                Console.Write($"Please enter the name of player { i + 1 }: ");
+                string playerName = Console.ReadLine();
+                playerNames[i] = playerName;
+            }
+
+            return playerNames;
+        }
+
+        private int GetPlayerCount()
+        {
+            Console.Write("Please enter how many players will be playing in this game (between 1 and 10): ");
+
+            while (true)
+            {
+                int.TryParse(Console.ReadLine(), out int playerCount);
+                if (playerCount < 1 || playerCount > MaxPlayers)
+                {
+                    Console.Clear();
+                    Console.WriteLine("You entered an invalid number.");
+                    Console.Write($"Please enter how many players will be playing in this game (between 1 and { MaxPlayers }): ");
+                }
+                else
+                {
+                    return playerCount;
+                }
+            }
         }
     }     
 }
